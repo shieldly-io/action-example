@@ -1,0 +1,25 @@
+name: Shieldly Security Check
+on: [push, pull_request]
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: AI-Powered IAM & CloudFormation security analysis
+        uses: shieldly-io/action@v1
+        id: shieldly
+        with:
+          api-key: ${{ secrets.SHIELDLY_API_KEY }}
+          scan-path: ./iac
+          fail-on-severity: High
+
+      - if: always()
+        name: Print results
+        run: |
+          echo "Score:     ${{ steps.shieldly.outputs.score }}"
+          echo "Risk:      ${{ steps.shieldly.outputs.risk-level }}"
+          echo "Findings:  ${{ steps.shieldly.outputs.findings-count }}"
+          echo "Critical:  ${{ steps.shieldly.outputs.critical-count }}"
+          echo "High:      ${{ steps.shieldly.outputs.high-count }}"
