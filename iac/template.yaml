@@ -1,0 +1,29 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Example CloudFormation template — intentionally has a public S3 bucket to trigger Shieldly findings
+
+Resources:
+  AppBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: my-app-assets
+      # Missing BlockPublicAcls, IgnorePublicAcls, etc. — will be flagged
+
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: MyAppLambdaRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: BroadS3Access
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: "s3:*"
+                Resource: "*"
